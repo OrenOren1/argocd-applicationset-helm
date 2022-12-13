@@ -1,0 +1,36 @@
+{{- if .Values.datadog.enabled -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: datadog
+  namespace: argocd
+  labels:
+    type: infra
+    cluster: {{ .Values.cluster_name }}
+spec:
+  destination:
+    namespace: datadog
+    server: {{ .Values.cluster_address }}
+  source:
+    repoURL: 'https://helm.datadoghq.com'
+    targetRevision: 2.19.9
+    chart: datadog
+    helm:
+      values: |-
+        datadog:
+          apiKey: {{ .Values.datadog.api_key }}
+          tags:
+            - environment:{{ .Values.cluster_name }}
+          nodeLabelsAsTags:
+            kubernetes.io/hostname: hostname
+          apm:
+            enabled: {{ .Values.datadog.apm.enabled }} # enable APM and tracing, on port 8126
+          logs:
+            enabled: false # this is the default but added for when we want to enable
+            containerCollectAll: false # same as above
+  project: {{ .Values.argocd.project }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+{{- end }}

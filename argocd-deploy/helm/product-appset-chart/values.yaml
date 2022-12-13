@@ -1,0 +1,6 @@
+apps: {}
+#  <product_name>:
+#    repo_url: git@github.com:company_name/ #repo of umbrela chart
+#    enabled: true # true/false
+#    version: # master-  point on git branch
+#    team: # label value of  team:

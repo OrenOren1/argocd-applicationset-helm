@@ -1,0 +1,15 @@
+aws:
+  account_id: "accounid"
+
+node:
+  iam_name: auto3-eks2022047
+
+mapUsers:
+  masters: null
+    # - ofirs
+    # - giladj
+    # - matanh
+    # - ayaext
+
+mapRoles: null
+  # - jenkins-terraform-role

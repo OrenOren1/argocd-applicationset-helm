@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metric-server
+  namespace: argocd
+  labels:
+    type: infra
+    cluster: {{ .Values.cluster_name }}
+spec:
+  destination:
+    namespace: kube-system
+    server: {{ .Values.cluster_address }}
+  source:
+    repoURL: 'https://charts.bitnami.com/bitnami'
+    targetRevision: 5.8.14
+    chart: metrics-server
+    helm:
+      values: |-
+        apiService:
+          create: true
+  project: {{ .Values.argocd.project }}
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false

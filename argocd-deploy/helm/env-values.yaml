@@ -1,0 +1,72 @@
+eks_user_access:
+  - orenext
+  - user1
+  - user2
+
+aws_account_id: account122345
+cluster_address: https://kubernetes.default.svc
+cluster_name: auto3
+cluster_region: eu-west-1
+external_domain: example.com
+internal_domain: example.is
+domain_suffix: example.com
+db_url: db-auto3.example.is
+db_name: postgres
+db_admin: tikalmarke1
+kafka_broker: tp7.c9
+redis_uri: redis://tikalredis-master.argocd
+vpc_id: 'vpc-07b7ad41f697'
+certificate: e86fffb2-255725f6fe6f
+cluster_vpc_id: vpc-07b7adc04f697
+nodegroup_iam_role: auto3-eks20220419093757900800000009
+alb_ingress_role_arn: arn:aws:iam::account122345:role/alb-ingress-auto3
+external_dns_role_arn: arn:aws:iam::account122345:role/external-dns_role_auto3
+external_secrets_role_arn: arn:aws:iam::account122345:role/external-secrets_role_auto3
+cluster_url: https://argocd-auto3.example.is
+namespace_pod_quota_count: 200
+
+aws_cluster_autoscaler:
+  enabled: false # Only enable when spot.io ocean is off
+logzio:
+  enabled: false
+
+kube2iam:
+  enabled: true
+datadog:
+  enabled: false
+  api_key: 952b3deffce6afa2d389cfcacc4
+  apm:
+    enabled: false
+argocd:
+  targetRevision: auto3
+  project: tikal
+  repoURL: git@github.com:tikal/tikal_helm_deploy.git
+  ingress:
+    cert_arn: arn:aws:acm:eu-west-1:607827849963:certificate/12f49709-d977-41c4-b
+    domain: example.is
+  sso:
+    enabled: false
+    clientid: e8cb602fb5b5904dd
+    clientsecret: n6wAj9BZ
+    tenant: 6cc0f90cac58fd
+
+
+
+
+
+apps:
+  product1:
+    repo_url: git@github.com:tikal/product1-helm.git
+    enabled: true
+    version: edge
+    team: dev-team1
+  product2:
+    repo_url: git@github.com:tikal/product2-helm.git
+    enabled: true
+    version: edge
+    team: dev-team2
+  product3:
+    repo_url: git@github.com:tikal/product3-helm.git
+    enabled: true
+    version: edge
+    team: dev-team3

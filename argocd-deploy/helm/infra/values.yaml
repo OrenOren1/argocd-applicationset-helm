@@ -1,0 +1,49 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+argocd:
+  project: null
+  targetRevision: null
+  repoURL: null
+  ingress:
+    cert_arn: null
+    domain: null
+  sso:
+    enabled: false
+    clientid: null
+    clientsecret: null
+    tenant: null
+
+cluster_address: 'https://kubernetes.default.svc'
+namespace_pod_quota_count: 150
+
+cluster_name: null
+cluster_vpc_id: null
+cluster_region: null
+aws_account_id: null
+alb_ingress_role_arn: null
+nodegroup_iam_role: null
+external_dns_role_arn: null
+external_secrets_role_arn: null
+
+# common variables
+aws_cluster_autoscaler:
+  enabled: false # Only enable when spot.io ocean is off
+
+eks_user_access: []
+
+logzio:
+   enabled: false
+
+
+datadog:
+  enabled: false
+  api_key: null
+  apm:
+    enabled: false
+
+rabbitmq:
+  enabled: false
+  password: 7^DJKDf@QFYsS1nRF&u!
+  loadBalancerSourceRanges: 205.209.29.34/32,185.167.108.242/32,5.102.239.63/32,192.116.36.194/32,212.199.64.38/32,18.203.90.245/32,54.217.131.96/32,52.212.30.110/32,74.204.255.5/32 # NY,IL,matan,IL new1,IL new2,edge2-nat, theirs
+  cert_arn: arn:aws:acm:eu-west-1:607827849963:certificate/e86fffb2-b95a-43ee-
+  

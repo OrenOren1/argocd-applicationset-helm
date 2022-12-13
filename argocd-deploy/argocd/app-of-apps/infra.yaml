@@ -1,0 +1,85 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra
+  namespace: argocd
+  labels:
+    group: auto3
+spec:
+  project: tikal
+  source:
+    repoURL: git@github.com:tikal/tikal_helm_deploy
+    path: helm/infra
+    targetRevision: auto3
+    helm:
+      valueFiles:
+        - '../env-values.yaml'
+      values: |
+        eks_user_access:
+          - orenext
+          - avik
+          - avivb
+          - biatag
+          - batelz
+          - dafi
+          - dinak
+          - dkoroza
+          - einat
+          - elad.g
+          - giladj
+          - itait
+          - lior
+          - matanh
+          - naamak
+          - noamk
+          - olgas
+          - orens
+          - roid
+          - selal
+          - valeriyn
+          - yaron.amir
+          - yonatan.d
+          - yuvalp
+          - yuvalt
+        argocd:
+          targetRevision: auto3
+          ingress:
+            cert_arn: arn:aws:acm:eu-west-1:607827849963:certificate/12f49709-d977-41c4-b6c3-90c1c1d4138d
+            domain: tikal.is
+          sso:
+            enabled: false
+            clientid: e8cb609d-3c9d-48d9-8062-72fb5b5904dd
+            clientsecret: n6w-ytQJ6Gd_JoCo4~M9w2Q_XDv1OAj9BZ
+            tenant: 6cc0fa0d-9794-4c52-85e1-e7790cac58fd
+
+        env_name: auto3
+        cluster_name: auto3
+        cluster_region: eu-west-1
+        aws_account_id: 607827849963
+        cluster_vpc_id: vpc-07b7ad414bc04f697
+        nodegroup_iam_role: auto3-eks20220419093757900800000009
+        alb_ingress_role_arn: arn:aws:iam::607827849963:role/alb-ingress-auto3
+        external_dns_role_arn: arn:aws:iam::607827849963:role/external-dns_role_auto3
+        external_secrets_role_arn: arn:aws:iam::607827849963:role/external-secrets_role_auto3
+
+        aws_cluster_autoscaler:
+          enabled: false # Only enable when spot.io ocean is off
+        logzio:
+          enabled: false
+
+        datadog:
+          enabled: false
+          api_key: 952b3deffce6afa20b860d389cfcacc4
+          apm:
+            enabled: false
+
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,0 +1,28 @@
+{{- if .Values.logzio.enabled -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: logzio
+  namespace: argocd
+  labels:
+    type: infra
+    cluster: {{ .Values.cluster_name }}
+spec:
+  project: {{ .Values.argocd.project }}
+  destination:
+    namespace: argocd
+    server: {{ .Values.cluster_address }}
+  source:
+    chart: logzio-k8s-logs
+    repoURL: https://logzio.github.io/logzio-helm
+    targetRevision: 0.0.4
+    helm:
+      values: |-
+        secrets:
+          logzioShippingToken: "kBaLtfInnZvIAEbqyQGbgccWrlbpPxdY"
+          clusterName: {{ .Values.cluster_name }}-eks
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+{{- end }}

@@ -1,0 +1,41 @@
+{{- if .Values.rabbitmq.enabled -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rabbitmq
+  namespace: argocd
+  labels:
+    type: infra
+    cluster: {{ .Values.cluster_name }}
+spec:
+  project: {{ .Values.argocd.project }}
+  destination:
+    namespace: argocd
+    server: {{ .Values.cluster_address }}
+  source:
+    repoURL: 'https://charts.bitnami.com/bitnami'
+    targetRevision: 8.28.0
+    chart: rabbitmq
+    helm:
+      values: |-
+        service:
+          port: 5671
+          type: LoadBalancer
+          loadBalancerSourceRanges: [{{ .Values.rabbitmq.loadBalancerSourceRanges }}]
+          annotations:
+            external-dns.alpha.kubernetes.io/hostname: rabbitmq-{{ .Values.cluster_name }}.tikal.com
+            service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ .Values.rabbitmq.cert_arn }}
+        extraSecrets:
+          load-definition:
+            load_definition.json: {{ .Values.rabbitmq.load_definition_json | toJson | quote }}
+        loadDefinition:
+          enabled: true
+          existingSecret: load-definition
+        extraConfiguration: |
+          load_definitions = /app/load_definition.json
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+{{- end }}
+

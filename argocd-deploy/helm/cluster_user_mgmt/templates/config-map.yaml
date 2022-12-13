@@ -1,0 +1,35 @@
+{{- $account_id := .Values.aws.account_id }}
+
+apiVersion: v1
+metadata:
+  name: aws-auth
+  namespace: kube-system
+  labels:
+      {{- include "cluster_user_mgmt.labels" . | nindent 4 }}
+data:
+  mapAccounts: |
+    []
+  mapRoles: |
+    - "groups":
+      - "system:bootstrappers"
+      - "system:nodes"
+      "rolearn": "arn:aws:iam::{{ int $account_id  }}:role/{{ .Values.node.iam_name }}"
+      "username": "system:node:{{ `{{EC2PrivateDNSName}}` }}"
+  {{- if .Values.mapRoles }}
+    {{- range $role := .Values.mapRoles }}
+    - "groups":
+      - "system:masters"
+      "rolearn": "arn:aws:iam::{{ int $account_id  }}:role/{{ $role }}"
+      "username": {{ $role }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.mapUsers.masters }}
+  mapUsers: |
+    {{- range $user := .Values.mapUsers.masters }}
+    - "groups":
+      - "system:masters"
+      "userarn": "arn:aws:iam::{{ int $account_id  }}:user/{{ $user }}"
+      "username": {{ $user }}
+    {{- end }}
+  {{- end }}
+kind: ConfigMap

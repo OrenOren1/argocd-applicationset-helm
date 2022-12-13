@@ -1,0 +1,30 @@
+{{- if .Values.aws_cluster_autoscaler.enabled -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aws-cluster-autoscaler
+  namespace: argocd
+  labels:
+    type: infra
+spec:
+  destination:
+    namespace: kube-system
+    server: 'https://kubernetes.default.svc'
+  source:
+    repoURL: 'https://kubernetes.github.io/autoscaler'
+    targetRevision: 9.9.2
+    chart: cluster-autoscaler
+    helm:
+      values: |
+        autoDiscovery:
+          clusterName: {{ .Values.cluster_name }}-eks
+        rbac:
+          serviceAccount:
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::607827849963:role/cluster-autoscaler_role_{{ .Values.cluster_name }}
+  project: tikal
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+{{- end }}

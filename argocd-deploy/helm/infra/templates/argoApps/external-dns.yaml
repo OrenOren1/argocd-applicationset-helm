@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  labels:
+    type: infra
+    cluster: {{ .Values.cluster_name }}
+spec:
+  project: {{ .Values.argocd.project }}
+  source:
+    chart: external-dns
+    repoURL: https://charts.bitnami.com/bitnami
+    targetRevision: 6.1.1
+    helm:
+      parameters:
+        - name: provider
+          value: 'aws'
+        - name: policy
+          value: 'sync'
+      values: |
+        provider: aws
+        serviceTypeFilter: [ClusterIP]
+        aws:
+          zoneType: public
+        txtOwnerId: {{ .Values.cluster_name }}
+        podAnnotations:
+          iam.amazonaws.com/role: {{ .Values.external_dns_role_arn }}
+  destination:
+    namespace: kube-system
+    server: {{ .Values.cluster_address }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

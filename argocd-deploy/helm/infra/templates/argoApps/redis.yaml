@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tikalredis
+  namespace: argocd
+  labels:
+    type: infra
+    cluster: {{ .Values.cluster_name }}
+spec:
+  project: {{ .Values.argocd.project }}
+  destination:
+    namespace: argocd
+    server: {{ .Values.cluster_address }}
+  source:
+    repoURL: 'https://charts.bitnami.com/bitnami'
+    targetRevision: 16.2.1
+    chart: redis
+    helm:
+      values: |-
+        auth:
+          enabled: false
+          password: ""
+          usePasswordFiles: false
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

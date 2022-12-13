@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-users
+  namespace: argocd
+  labels:
+    type: infra
+    cluster: {{ .Values.cluster_name }}
+spec:
+  project: {{ .Values.argocd.project }}
+  source:
+    path: helm/cluster_user_mgmt
+    repoURL: git@github.com:tikal/tikal_helm_deploy.git
+    targetRevision: {{ .Values.cluster_name }}
+    helm:
+      values: |
+        mapUsers:
+          masters:
+{{ toYaml .Values.eks_user_access | indent 12}}
+        mapRoles:
+          - jenkins
+          - jenkins-terraform-role
+          - auto3-jenkins-agent-instance-role
+        node:
+          iam_name: {{ .Values.nodegroup_iam_role }}
+
+
+
+  destination:
+    namespace: kube-system
+    server: {{ .Values.cluster_address }}   #{{ .Values.cluster_address }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

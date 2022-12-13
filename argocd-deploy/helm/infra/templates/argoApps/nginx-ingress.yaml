@@ -1,0 +1,49 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-nginx
+  namespace: argocd
+  labels:
+    type: infra
+    cluster: {{ .Values.cluster_name }}
+spec:
+  project: {{ .Values.argocd.project }}
+  source:
+    chart: ingress-nginx
+    targetRevision: 4.0.13
+    repoURL: https://kubernetes.github.io/ingress-nginx
+    helm:
+      values: |
+        controller:
+          kind: DaemonSet
+          service:
+            externalTrafficPolicy: "Local"
+            targetPorts:
+              http: http
+              https: http
+            annotations:
+              service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:eu-west-1:607827849963:certificate/12f49709-d977-41c4-b6c3-90c1c1d4138d
+              service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+              service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+              service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: '3600'
+              service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
+              service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+              service.beta.kubernetes.io/load-balancer-source-ranges: 10.200.0.0/16,192.168.1.0/24,192.168.5.0/24,185.167.108.242/32,192.116.36.194/32,212.199.64.38/32,192.168.10.0/24,213.86.14.146/32,10.109.0.0/16
+              service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: enviroment={{ .Values.cluster_name }}
+  destination:
+    server: {{ .Values.cluster_address }}
+    namespace: nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+
+
+# CLUSTER_NAME="qa2-eks"
+# aws ec2 describe-subnets --filters "Name=tag:kubernetes.io/cluster/${CLUSTER_NAME}  ,Values=shared" "Name=tag:kubernetes.io/role/elb,Values=1" | jq '.Subnets | map(.SubnetId)'
+# aws ec2 describe-subnets --filters "Name=tag:kubernetes.io/cluster/${CLUSTER_NAME}  ,Values=shared" "Name=tag:kubernetes.io/role/internal-elb,Values=1" | jq '.Subnets | map(.SubnetId)'
+# or
+# aws ec2 describe-subnets --filters "Name=tag:kubernetes.io/cluster/${CLUSTER_NAME}  ,Values=owned" "Name=tag:kubernetes.io/role/elb,Values=1" | jq '.Subnets | map(.SubnetId)'
+# aws ec2 describe-subnets --filters "Name=tag:kubernetes.io/cluster/${CLUSTER_NAME}  ,Values=owned" "Name=tag:kubernetes.io/role/internal-elb,Values=1" | jq '.Subnets | map(.SubnetId)'

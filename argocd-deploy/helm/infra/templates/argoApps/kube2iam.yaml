@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube2iam
+  namespace: argocd
+  labels:
+    type: infra
+    cluster: {{ .Values.cluster_name }}
+spec:
+  project: {{ .Values.argocd.project }}
+  destination:
+    namespace: argocd
+    server: {{ .Values.cluster_address }}
+  source:
+    repoURL: 'https://jtblin.github.io/kube2iam/'
+    targetRevision: 2.5.2
+    chart: kube2iam
+    helm:
+      values: |-
+        extraArgs:
+          default-role: default_role_edge
+          base-role-arn: "arn:aws:iam::607827849963:role/"
+        rbac:
+          create: true
+        host:
+          interface: eni+
+          iptables: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

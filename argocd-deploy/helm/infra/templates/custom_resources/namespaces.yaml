@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx
+spec:
+  finalizers:
+    - kubernetes
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: external-secrets
+spec:
+  finalizers:
+    - kubernetes
+
+---
+{{- if .Values.datadog.enabled -}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: datadog
+spec:
+  finalizers:
+    - kubernetes
+{{- end }}

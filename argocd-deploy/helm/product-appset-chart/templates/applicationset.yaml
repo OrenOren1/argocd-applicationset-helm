@@ -1,0 +1,83 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: tikal-products
+  namespace: argocd
+spec:
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                {{- range $name,$value := .Values.apps }}
+                {{- if $value.enabled }}
+                - name: {{ default  $name $value.name |replace "_" "-"}}
+                  version: {{ $value.version }}
+                  repo_url: {{ $value.repo_url }}
+                  team: {{ $value.team }}
+                {{- end }}
+                {{- end }}
+          - list:
+              elements:
+              - propertiesEnvName: {{ .Values.cluster_name }}
+                domain: {{ .Values.domain_suffix }}
+                region: {{ .Values.cluster_region }}
+                cluster_name: {{ .Values.cluster_name }}
+                aws_account_id: '{{int .Values.aws_account_id }}'
+                db_url: {{ .Values.db_url }}
+                db_name: {{ .Values.db_name }}
+                db_admin: {{ .Values.db_admin }}
+                kafka_broker: {{ .Values.kafka_broker }}
+                external_domain: {{ .Values.external_domain }}
+                internal_domain: {{ .Values.internal_domain }}
+                redis_uri: {{ .Values.redis_uri }}
+                vpc_id: '{{ .Values.cluster_vpc_id }}'
+  template:
+    metadata:
+      name: 'tikal-{{"{{"}}name{{"}}"}}'
+
+    spec:
+      project: tikal
+      source:
+        path: ./
+        repoURL:  '{{"{{"}}repo_url{{"}}"}}'
+        targetRevision: '{{"{{"}}version{{"}}"}}'
+        helm:
+          valueFiles:
+            - 'envs/{{ .Values.cluster_name}}/services-values.yaml'
+          values: |
+            global:
+              propertiesEnvName: {{"{{"}}propertiesEnvName{{"}}"}}
+              domain: {{"{{"}}domain{{"}}"}}
+              region: {{"{{"}}region{{"}}"}}
+              aws_account_id: {{"{{"}}aws_account_id{{"}}"}}
+              cluster_name: {{"{{"}}cluster_name{{"}}"}}
+              external_domain: {{"{{"}}external_domain{{"}}"}}
+              internal_domain: {{"{{"}}internal_domain{{"}}"}}
+              db_url: {{"{{"}}db_url{{"}}"}}
+              db_name: {{"{{"}}db_name{{"}}"}}
+              kafka_broker: {{"{{"}}kafka_broker{{"}}"}}
+              redis_uri: {{"{{"}}redis_uri{{"}}"}}
+              vpc_id: {{"{{"}}vpc_id{{"}}"}}
+              SpotinstRestrictScaleDown:
+                enabled: false
+              labels:
+                team: {{"{{"}}team{{"}}"}}
+                product: {{"{{"}}name{{"}}"}}
+              env:
+                INFLUXDB_HOST: {{"{{"}}propertiesEnvName{{"}}"}}-influxdb.tikal.com
+                LOG4J_FORMAT_MSG_NO_LOOKUPS: 'true'
+                ROOKOUT_ROOK_TAGS: {{"{{"}}propertiesEnvName{{"}}"}}
+                SPRING_PROFILES_ACTIVE: {{"{{"}}propertiesEnvName{{"}}"}}
+                CPTLS_ENV: {{"{{"}}propertiesEnvName{{"}}"}}
+                DATABASE_ADMIN: {{"{{"}}db_admin{{"}}"}}
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: ns
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: true
+          selfHeal: true
