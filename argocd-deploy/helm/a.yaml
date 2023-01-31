@@ -1,0 +1,86 @@
+# Source: products-set/templates/applicationset.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: tikal-products
+  namespace: argocd
+spec:
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - name: product1
+                  version: edge
+                  repo_url: git@github.com:tikal/product1-helm.git
+                  team: dev-team1
+                - name: product2
+                  version: edge
+                  repo_url: git@github.com:tikal/product2-helm.git
+                  team: dev-team2
+                - name: product3
+                  version: edge
+                  repo_url: git@github.com:tikal/product3-helm.git
+                  team: dev-team3
+          - list:
+              elements:
+              - propertiesEnvName: auto3
+                domain: example.com
+                region: eu-west-1
+                cluster_name: auto3
+                aws_account_id: '0'
+                db_url: db-auto3.example.is
+                db_name: postgres
+                db_admin: tikalmarke1
+                kafka_broker: tp7.c9
+                external_domain: example.com
+                internal_domain: example.is
+                redis_uri: redis://tikalredis-master.argocd
+                vpc_id: 'vpc-07b7adc04f697'
+  template:
+    metadata:
+      name: 'tikal-{{name}}'
+
+    spec:
+      project: tikal
+      source:
+        path: ./
+        repoURL:  '{{repo_url}}'
+        targetRevision: '{{version}}'
+        helm:
+          values: |
+            global:
+              propertiesEnvName: {{propertiesEnvName}}
+              domain: {{domain}}
+              region: {{region}}
+              aws_account_id: {{aws_account_id}}
+              cluster_name: {{cluster_name}}
+              external_domain: {{external_domain}}
+              internal_domain: {{internal_domain}}
+              db_url: {{db_url}}
+              db_name: {{db_name}}
+              kafka_broker: {{kafka_broker}}
+              redis_uri: {{redis_uri}}
+              vpc_id: {{vpc_id}}
+              SpotinstRestrictScaleDown:
+                enabled: false
+              labels:
+                team: {{team}}
+                product: {{name}}
+              env:
+                INFLUXDB_HOST: {{propertiesEnvName}}-influxdb.tikal.com
+                LOG4J_FORMAT_MSG_NO_LOOKUPS: 'true'
+                ROOKOUT_ROOK_TAGS: {{propertiesEnvName}}
+                SPRING_PROFILES_ACTIVE: {{propertiesEnvName}}
+                CPTLS_ENV: {{propertiesEnvName}}
+                DATABASE_ADMIN: {{db_admin}}
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: ns
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: true
+          selfHeal: true
