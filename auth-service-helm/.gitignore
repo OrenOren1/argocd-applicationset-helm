@@ -1,0 +1,7 @@
+# Helm Files #
+*.lock
+a.yaml
+b.yaml
+
+## Intelij ##
+.idea

@@ -1,0 +1,8 @@
+{{- include "common.configmap" (list . "mychart.configmap") -}}
+{{- define "mychart.configmap" -}}
+data:
+{{- range $path, $_ := (.Files.Glob "apps/cms/*") }}
+  {{ trimPrefix "apps/cms/" $path }}: |
+    {{- tpl ($.Files.Get $path) $ | nindent 4 }}
+{{- end }}
+{{- end -}}

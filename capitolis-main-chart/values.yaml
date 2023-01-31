@@ -1,0 +1,243 @@
+# Default values for main-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+fullName: ""
+team: ""
+propertiesEnvName: null
+domain: null
+db_url: null
+labels:
+  team: ""
+  spotinst.io/restrict-scale-down: "true"
+replicaCount: 0
+revisionHistoryLimit: 0
+deployment:
+  enabled: true
+image:
+  repository: nginx
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+podAnnotations: {}
+service:
+  enabled: true
+  type: ClusterIP
+  ports: []
+  healthcheck_path: null
+  startupProbe:
+    enabled: false
+    # initialDelaySeconds: 30
+livenessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /health
+    port: 8082
+    scheme: HTTP
+  initialDelaySeconds: 300
+  periodSeconds: 30
+  successThreshold: 1
+  timeoutSeconds: 1
+readinessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /health
+    port: 8082
+    scheme: HTTP
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+ingress:
+  enabled: false
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  service_port: 80
+  pathType: Prefix
+  hosts:
+    - host: chart-example.local
+      paths: []
+      # - /
+      extra_paths: []
+      # - "/v1"
+      # - "/v2"
+      # - "/v3"
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+ingress_alb:
+  enabled: false
+  annotations: {}
+  # kubernetes.io/ingress.class: alb
+  # kubernetes.io/tls-acme: "true"
+  service_port: 80
+  pathType: Prefix
+  hosts:
+    - host: chart-example.local
+      paths: []
+      # - /
+      extra_paths: []
+      # - "/v1"
+      # - "/v2"
+      # - "/v3"
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+extraVolumesProperties: []
+extraVolumeMounts: []
+resources: {}
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+
+# -- add autoscaling
+# Custom metrics names can befound at `kubectl get --raw "/apis/external.metrics.k8s.io/v1beta1/" |jq`
+# and if needed to add helm/argo/infra/prometheus-adapter.yaml
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+  # customMetricName: edge_vernemq_topics_online_messages
+  # customMetricNametargetAverageValue: 100
+nodeSelector: {}
+# spotinst.io/node-lifecycle: od
+
+tolerations: []
+affinity: {}
+# -- add env variables
+env: {}
+#  KEY1: "VALUE 1"
+#  KEY2: "VALUE 2"
+
+# -- add configmap
+configmap:
+  load_default_application_properties: true
+  enabled: true
+  annotations: {}
+  log4j_mount:
+    enabled: null
+# -- add support for external secrets
+#Example:
+#  enabled: true
+#   secrets:
+#     - staging-mysql-storeconfig: storeconfig-db-password
+
+
+# -- Add a custom command to run on main container
+# Example (run echo "Hello World"):
+# containerCommand:
+#   - "echo"
+#   - "Hello World"
+containerCommand: null
+# -- Add a initContainers and specify the command to run
+# Example (run echo "Hello World"):
+#initContainers:
+#  enabled: true
+#  command:
+#   - "echo"
+#   - "Hello World"
+initContainers:
+  enabled: false
+  repository:
+    custom: false
+    image: null
+    tag: null
+  command: null
+# -- Create a deployment strategy  strategy:
+#    rollingUpdate:
+#      maxUnavailable: 0
+#      maxSurge: 3
+strategy:
+  rollingUpdate:
+    maxSurge: 25%
+    maxUnavailable: 25%
+job:
+  enabled: false
+  image:
+    repository: nginx
+    tag: "latest"
+  Annotations: null
+  containerCommand: null
+  resources: {}
+cronjob:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 5
+  successfulJobsHistoryLimit: 5
+  restartPolicy: OnFailure
+  jobs:
+  # myservice:
+  #   args:
+  #   - "test"
+  #   schedule: "*/30 * * * *"
+  #   common_env_vars: {}
+  #     # KEY1: "common_VALUE_1"
+  #     # KEY2: "common_VALUE_2"
+  #   per_env_vars: #{}
+  #     ENV_ID: "staging"
+  #     # KEY2: "per_env_VALUE_2"
+  # myservice2:
+  #   args:
+  #   - "test"
+  #   schedule: "*/30 * * * *"
+  #   common_env_vars: {}
+  #     # KEY1: "common_VALUE_1"
+  #     # KEY2: "common_VALUE_2"
+  #   per_env_vars: #{}
+  #     ENV_ID: "staging"
+  #     # KEY2: "per_env_VALUE_2"
+  #   failedJobsHistoryLimit: 1
+  #   successfulJobsHistoryLimit: 2
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext: {}
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+# -- Create a dynamic manifests via values:
+extraObjects: []
+# - apiVersion: batch/v1beta1
+#   kind: CronJob
+#   metadata:
+#     name: "{{ .Values.name }}-somejob"
+#   spec:
+#     schedule: "*/10 * * * *"
+#     concurrencyPolicy: Forbid
+#     jobTemplate:
+#       spec:
+#         template:
+#           spec:
+#             containers:
+#             - name: myjob
+#               image: ubuntu
+#               command:
+#               - echo
+#               args:
+#               - hello
+#             restartPolicy: OnFailure

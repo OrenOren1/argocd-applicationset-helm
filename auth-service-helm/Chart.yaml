@@ -1,0 +1,19 @@
+apiVersion: v2
+name: tikal-auth
+description: A Helm chart for Kubernetes part of Tikal knowledge academy center
+
+type: application
+version: 1.0.0
+
+appVersion: "1.16.0"
+
+dependencies:
+  - name: tikal-main-chart
+    version: "0.0.5"
+    repository: "oci://9963.dkr.ecr.eu-west-1.amazonaws.com"
+  - name: auth-service
+    version: "1.0.0"
+    repository: "file://services/auth-service"
+  - name: report-service
+    version: "1.0.0"
+    repository: "file://services/report-service"

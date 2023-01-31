@@ -1,0 +1,43 @@
+{
+  "configuration": {
+    "debug": true,
+    "monitorInterval": 60,
+    "appenders": {
+      "Console": {
+        "name": "Console-Appender",
+        "target": "SYSTEM_OUT",
+        "JsonLayout": {
+          "complete": false,
+          "compact": true,
+          "eventEol": true,
+          "KeyValuePair": {
+            "key": "environment",
+            "value": "${env:SPRING_PROFILES_ACTIVE}"
+          }
+        }
+      }
+    },
+    "loggers": {
+      "logger": [
+        {
+          "level": "info",
+          "name": "com.tikal"
+        },
+        {
+          "level": "info",
+          "name": "org.flywaydb.core.internal.command"
+        },
+        {
+          "level": "warn",
+          "name": "org.springframework"
+        }
+      ],
+      "root": {
+        "level": "error",
+        "AppenderRef": {
+          "ref": "Console-Appender"
+        }
+      }
+    }
+  }
+}

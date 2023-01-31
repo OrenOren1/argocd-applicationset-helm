@@ -1,0 +1,56 @@
+{{- define "common.configmap.tpl" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "main-chart.name" . }}-properties
+data:
+  application-json_layout.properties: |
+    logging.config=config/log4j2-json_layout.json
+  log4j2-json_layout.json: |
+    {
+      "configuration": {
+        "debug": true,
+        "monitorInterval": 60,
+        "appenders": {
+          "Console": {
+            "name": "Console-Appender",
+            "target": "SYSTEM_OUT",
+            "JsonLayout": {
+              "complete": false,
+              "compact": true,
+              "eventEol": true,
+              "KeyValuePair": {
+                "key": "environment",
+                "value": "${env:SPRING_PROFILES_ACTIVE}"
+              }
+            }
+          }
+        },
+        "loggers": {
+          "logger": [
+            {
+              "level": "info",
+              "name": "com.tikal"
+            },
+            {
+              "level": "info",
+              "name": "org.flywaydb.core.internal.command"
+            },
+            {
+              "level": "warn",
+              "name": "org.springframework"
+            }
+          ],
+          "root": {
+            "level": "error",
+            "AppenderRef": {
+              "ref": "Console-Appender"
+            }
+          }
+        }
+      }
+    }
+{{- end -}}
+{{- define "common.configmap" -}}
+{{- include "main-chart.util.merge" (append . "common.configmap.tpl") -}}
+{{- end -}}

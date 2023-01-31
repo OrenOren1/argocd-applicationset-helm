@@ -1,0 +1,59 @@
+fullnameOverride: auth-service
+
+image:
+  tag: in-edge2
+
+labels:
+  app_stack: java
+
+env:
+ JAVA_OPTS: -Xmx900m
+ APP_VERSION: in-edge
+
+service: {}
+
+livenessProbe:
+  httpGet: {}
+readinessProbe:
+  httpGet: {}
+
+ingress:
+  className: ""
+  annotations: {}
+  hosts:
+    - host: []
+      paths:
+        - path: /
+          pathType: {}
+  tls: []
+
+configmap:
+  load_default_application_properties: true
+  annotations: {}
+  log4j_mount:
+    enabled: true # Replace with true\false.
+  custom: {} # Use if load_default_application_properties set to false, and for extra mounts & volumes.
+#       extraVolumeMounts:
+#       - mountPath: /usr/src/app/src/graphql-server/.env.graph.tmp
+#         name: config
+#         subPath: .env.graph.tmp
+#     extraVolumesProperties:
+#       - configMap:
+#           items:
+#             - key: upload.properties
+#               path: .env.graph.tmp
+#           name: upload-properties
+#         name: config
+
+# externalsecrets_path: # Not Required: Use for different external_secrets path. For example: /usr/src/app/src/graphql-server/.env.kamus
+
+autoscaling: {}
+#   enabled:  true # Not required: default to false.
+
+
+
+
+SpotinstRestrictScaleDown: {}
+
+deployment:
+  enabled: true
